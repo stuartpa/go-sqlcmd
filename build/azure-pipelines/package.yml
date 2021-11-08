@@ -253,7 +253,6 @@ stages:
     jobs:
     - job: DebianBusterDistribution
       displayName: 'Build Debian Buster distribution'
-      dependsOn: TestWindowsMSIDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -300,7 +299,6 @@ stages:
     jobs:
     - job: DebianStretchDistribution
       displayName: 'Build Debian Stretch distribution'
-      dependsOn: DebianBusterDistribution
       pool:
         vmImage: 'ubuntu-20.04'
       steps:
@@ -346,7 +344,6 @@ stages:
     jobs:
     - job: DebianJessiehDistribution
       displayName: 'Build Debian Jessie distribution'
-      dependsOn: DebianStretchDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -393,7 +390,6 @@ stages:
     jobs:
     - job: UbuntuBonicDistribution
       displayName: 'Build Ubuntu Bionic distribution'
-      dependsOn: DebianJessiehDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -440,7 +436,6 @@ stages:
     jobs:
     - job: UbuntuXenialDistribution
       displayName: 'Build Ubuntu Xenial distribution'
-      dependsOn: UbuntuBonicDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -487,7 +482,6 @@ stages:
     jobs:
     - job: UbuntuFocalFossaDistribution
       displayName: 'Build Ubuntu Focal Fossa distribution'
-      dependsOn: UbuntuXenialDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -545,13 +539,13 @@ stages:
     jobs:
     - job: TestLinuxDebianDistributions
       displayName: 'Test debian packages: apt'
-      dependsOn:
-        - DebianBusterDistribution
-        - DebianStretchDistribution
-        - DebianJessiehDistribution
-        - UbuntuBonicDistribution
-        - UbuntuXenialDistribution
-        - UbuntuFocalFossaDistribution
+      #dependsOn:
+      #  - DebianBusterDistribution
+      #  - DebianStretchDistribution
+      #  - DebianJessiehDistribution
+      #  - UbuntuBonicDistribution
+      #  - UbuntuXenialDistribution
+      #  - UbuntuFocalFossaDistribution
       pool:
         vmImage: 'ubuntu-20.04'
       steps:
@@ -597,7 +591,6 @@ stages:
     jobs:
     - job: RpmDistribution
       displayName: 'Build RPM Distribution'
-      dependsOn: TestLinuxDebianDistributions
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-20.04'
@@ -662,7 +655,6 @@ stages:
     jobs:   
     - job: DockerDistribution
       displayName: 'Build Docker image distribution'
-      dependsOn: TestLinuxRpmDistributions
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-latest'
@@ -686,7 +678,6 @@ stages:
     jobs:
     - job: HomebrewFormulaDistribution
       displayName: 'Build Homebrew formula distribution'
-      dependsOn: DockerDistribution
       condition: succeeded()
       pool:
         vmImage: 'ubuntu-latest'
