@@ -530,21 +530,22 @@ stages:
           publishDirectory: $(Build.ArtifactStagingDirectory)
           feedsToUsePublish: 'internal'
           vstsFeedPublish: 'aris'
-          vstsFeedPackagePublish: 'azdatacli'
+          vstsFeedPackagePublish: 'go-mssqltools'
           versionOption: custom
           versionPublish: '0.0.$(Build.BuildId)'
 
   - stage: TestLinuxDebianDistributions
+    dependsOn:
+      - DebianBusterDistribution
+      - DebianStretchDistribution
+      - DebianJessiehDistribution
+      - UbuntuBonicDistribution
+      - UbuntuXenialDistribution
+      - UbuntuFocalFossaDistribution
     jobs:
     - job: TestLinuxDebianDistributions
       displayName: 'Test debian packages: apt'
-      #dependsOn:
-      #  - DebianBusterDistribution
-      #  - DebianStretchDistribution
-      #  - DebianJessiehDistribution
-      #  - UbuntuBonicDistribution
-      #  - UbuntuXenialDistribution
-      #  - UbuntuFocalFossaDistribution
+
       pool:
         vmImage: 'ubuntu-20.04'
       steps:
