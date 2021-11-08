@@ -15,7 +15,7 @@ variables:
   GO_MSSQLTOOLS_PACKAGE_VERSION: '$(CLI_VERSION)'
   HOMEBREW_FORMULA_ARTIFACT: 'homebrew-formula'
   Build.SourcesCliDirectory: '$(Build.SourcesDirectory)/'
-  AZDATA_PIPELINE_RUN_NUMBER: $(Build.BuildNumber)
+  GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER: $(Build.BuildNumber)
   skip.upload: "true"
 
 stages:
