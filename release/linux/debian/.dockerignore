@@ -1,0 +1,29 @@
+# Exclude everything by default
+*
+
+# Make an exception
+!output/*
+
+# Make an exception
+!azdata-cli-extensions/*
+
+# Make an exception
+!release/*
+
+# Make an exception
+!src/*
+
+# Make an exception
+!scripts/*
+
+# Make an exception
+!LICENSE.txt
+
+# Make an exception
+!THIRDPARTYNOTICES.txt
+
+# Exclude build artifacts
+src/**/build
+**/*.pyc
+**/__pycache__
+env/

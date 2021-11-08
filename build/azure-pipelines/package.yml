@@ -1,0 +1,616 @@
+# go-mssqltools release artifacts
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+    exclude:
+    - ignite
+  paths:
+    include:
+    - /*
+
+variables:
+  CLI_VERSION: '20.3.8'
+  CLI_VERSION_REVISION: '1'
+  CLI_COMMAND_EXCLUSION_LIST: 'go-mssqltools'
+  CLI_PRE_INSTALLED_EXTENSION_LIST: ''
+  AZDATA_PACKAGE_VERSION: '$(CLI_VERSION)'
+  HOMEBREW_FORMULA_ARTIFACT: 'homebrew-formula'
+  Build.SourcesCliDirectory: '$(Build.SourcesDirectory)/'
+  AZDATA_PIPELINE_RUN_NUMBER: $(Build.BuildNumber)
+  skip.upload: "true"
+
+jobs:
+- job: BuildWheels
+  displayName: 'Build Python Wheels'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Bash@3
+    displayName: 'Build Python Wheels'
+    inputs:
+      targetType: 'inline'
+      script: release/pypi/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+      failOnStderr: false
+  - task: CopyFiles@2
+    displayName: 'Copy wheels to: $(Build.ArtifactStagingDirectory)/pypi'
+    inputs:
+      sourceFolder: '$(Build.SourcesCliDirectory)/output/pypi'
+      contents: '?(*.whl|*.txt)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/pypi'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: wheels'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/pypi
+      ArtifactName: wheels
+- job: SrcDistribution
+  displayName: 'Build src distribution'
+  dependsOn: BuildWheels
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build src distribution'
+    inputs:
+      script: release/src/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+  - task: CopyFiles@2
+    displayName: 'Copy src artifacts to: $(Build.ArtifactStagingDirectory)/src'
+    inputs:
+      sourceFolder: $(Build.SourcesCliDirectory)/output
+      contents: '*.gz'
+      TargetFolder: $(Build.ArtifactStagingDirectory)/src
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish src artifacts'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/src'
+      artifactName: src
+- job: WindowsMSIDistribution
+  displayName: 'Build Windows MSI distribution'
+  dependsOn: SrcDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'vs2017-win2016'
+  variables:
+    wix_download_url: 'https://azdataartifacts.blob.core.windows.net/util/wix314-binaries-mirror.zip'
+    MSI_OUTPUT_DIR: '$(Build.SourcesCliDirectory)/output/msi'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+       versionSpec: '3.6'
+       addToPath: true
+       architecture: 'x64'
+  - task: CmdLine@2
+    displayName: 'Prepare Windows MSI for msbuild'
+    inputs:
+      script: release\windows\scripts\build.cmd --skip-msbuild
+      workingDirectory: $(Build.SourcesCliDirectory)
+  - task: VSBuild@1
+    displayName: 'Build Windows MSI distribution'
+    inputs:
+      solution: '$(Build.SourcesCliDirectory)\release\windows\msi\mssql-tools.wixproj'
+      msbuildArchitecture: 'x86'
+      msbuildArgs: '/p:Configuration=Release'
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: '$(Build.SourcesDirectory)/projects/cli/output/msi'
+#      Pattern: '*.msi'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "keyCode": "CP-230012",
+#            "operationSetCode": "SigntoolSign",
+#            "parameters": [
+#              {
+#                "parameterName": "OpusName",
+#                "parameterValue": "GO-MSSQLTOOLS CLI"
+#              },
+#              {
+#                "parameterName": "OpusInfo",
+#                "parameterValue": "https://sqlhelsinki.visualstudio.com/DefaultCollection/_git/aris"
+#              },
+#              {
+#                "parameterName": "PageHash",
+#                "parameterValue": "/NPH"
+#              },
+#              {
+#                "parameterName": "FileDigest",
+#                "parameterValue": "/fd sha256"
+#              },
+#              {
+#                "parameterName": "TimeStamp",
+#                "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+#              }
+#            ],
+#            "toolName": "signtool.exe",
+#            "toolVersion": "6.2.9304.0"
+#          },
+#          {
+#            "keyCode": "CP-230012",
+#            "operationSetCode": "SigntoolVerify",
+#            "parameters": [
+#              {
+#                "parameterName": "VerifyAll",
+#                "parameterValue": "/all"
+#              }
+#            ],
+#            "toolName": "signtool.exe",
+#            "toolVersion": "6.2.9304.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: Bash@3
+    displayName: 'Rename MSI'
+    inputs:
+      targetType: 'inline'
+      script: |
+        mv "${MSI_OUTPUT_DIR}/Azure Data CLI.msi" ${MSI_OUTPUT_DIR}/azdata-cli-${CLI_VERSION}.msi
+  - task: CopyFiles@2
+    displayName: 'Copy MSI to: $(Build.ArtifactStagingDirectory)/windows'
+    inputs:
+      sourceFolder: $(Build.SourcesCliDirectory)/output/msi
+      contents: '?(*.msi|*.md)'
+      TargetFolder: $(Build.ArtifactStagingDirectory)/windows
+  - task: publishPipelineArtifact@0
+    displayName: 'Publish MSI build artifacts'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/windows
+      ArtifactName: msi
+- job: TestWindowsMSIDistribution
+  displayName: Test Windows MSI distribution
+  dependsOn: WindowsMSIDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download msi artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/msi
+      artifactName: msi
+  - task: PowerShell@2
+    displayName: Install and Load CLI
+    inputs:
+      targetType: 'filePath'
+      filePath: '$(Build.SourcesDirectory)\projects\cli\release\windows\scripts\pipeline-test.ps1'
+      failOnStderr: true
+- job: DebianBusterDistribution
+  displayName: 'Build Debian Buster distribution'
+  dependsOn: TestWindowsMSIDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Debian Buster distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: buster
+      DISTRO_BASE_IMAGE: debian:buster
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: debian-buster'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: debian-buster
+- job: DebianStretchDistribution
+  displayName: 'Build Debian Stretch distribution'
+  dependsOn: DebianBusterDistribution
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Debian Stretch distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: stretch
+      DISTRO_BASE_IMAGE: debian:stretch
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: debian-stretch'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: debian-stretch
+- job: DebianJessiehDistribution
+  displayName: 'Build Debian Jessie distribution'
+  dependsOn: DebianStretchDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Debian Jessie distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: jessie
+      DISTRO_BASE_IMAGE: debian:jessie
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: debian-jessie'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: debian-jessie
+- job: UbuntuBonicDistribution
+  displayName: 'Build Ubuntu Bionic distribution'
+  dependsOn: DebianJessiehDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Ubuntu Bionic distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: bionic
+      DISTRO_BASE_IMAGE: ubuntu:bionic
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: ubuntu-bionic'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: ubuntu-bionic
+- job: UbuntuXenialDistribution
+  displayName: 'Build Ubuntu Xenial distribution'
+  dependsOn: UbuntuBonicDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Ubuntu Xenial distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: xenial
+      DISTRO_BASE_IMAGE: ubuntu:xenial
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: ubuntu-xenial'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: ubuntu-xenial
+- job: UbuntuFocalFossaDistribution
+  displayName: 'Build Ubuntu Focal Fossa distribution'
+  dependsOn: UbuntuXenialDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Ubuntu Focal Fossa distribution'
+    inputs:
+      script: release/debian/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      DISTRO: focal
+      DISTRO_BASE_IMAGE: ubuntu:focal
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.deb'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.deb'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: ubuntu-focal'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: ubuntu-focal
+  - task: UniversalPackages@0
+    displayName: "Publish Artifact ubuntu-focal to universal packages"
+    inputs:
+      conditions: and(succeeded(), eq(skip.upload, 'false'))
+      command: 'publish'
+      publishDirectory: $(Build.ArtifactStagingDirectory)
+      feedsToUsePublish: 'internal'
+      vstsFeedPublish: 'aris'
+      vstsFeedPackagePublish: 'azdatacli'
+      versionOption: custom
+      versionPublish: '0.0.$(Build.BuildId)'
+- job: TestLinuxDebianDistributions
+  displayName: 'Test debian packages: apt'
+  dependsOn:
+    - DebianBusterDistribution
+    - DebianStretchDistribution
+    - DebianJessiehDistribution
+    - UbuntuBonicDistribution
+    - UbuntuXenialDistribution
+    - UbuntuFocalFossaDistribution
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download debian-buster artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: debian-buster
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download debian-stretch artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: debian-stretch
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download debian-jessie artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: debian-jessie
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download ubuntu-bionic artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: ubuntu-bionic
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download ubuntu-xenial artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: ubuntu-xenial
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download ubuntu-focal artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/debian
+      artifactName: ubuntu-focal
+  - task: CmdLine@2
+    displayName: 'Test Linux distributions via apt'
+    inputs:
+      script: release/debian/pipeline-test.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+- job: RpmDistribution
+  displayName: 'Build RPM Distribution'
+  dependsOn: TestLinuxDebianDistributions
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build RPM distribution'
+    inputs:
+      script: release/rpm/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+    env:
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+# Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: EsrpCodeSigning@1
+#    inputs:
+#      ConnectedServiceName: 'Code Signing'
+#      FolderPath: $(Build.ArtifactStagingDirectory)
+#      Pattern: '*.rpm'
+#      signConfigType: 'inlineSignParams'
+#      inlineOperation: |
+#        [
+#          {
+#            "KeyCode" : "CP-450779-Pgp",
+#            "OperationCode" : "LinuxSign",
+#            "Parameters" : {},
+#            "ToolName" : "sign",
+#            "ToolVersion" : "1.0"
+#          }
+#        ]
+#      SessionTimeout: '600'
+#      MaxConcurrency: '50'
+#      MaxRetryAttempts: '20'
+  - task: CodeSignValidationInjected@1
+    inputs:
+      Targets: '.rpm'
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Artifact: rpm'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: rpm
+- job: TestLinuxRpmDistributions
+  displayName:  'Test rpm packages: yum|zypper'
+  dependsOn: RpmDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: DownloadPipelineArtifact@1
+    displayName: 'Download rpm artifact'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)/rpm
+      artifactName: rpm
+# Temporarily disable the test to unblock GO-MSSQLTOOLS CLI build pipeline
+#  - task: CmdLine@2
+#    displayName: 'Test Linux distributions via yum|zypper'
+#    inputs:
+#      script: release/rpm/pipeline-test.sh
+#      workingDirectory: $(Build.SourcesCliDirectory)
+#    env:
+#      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+- job: DockerDistribution
+  displayName: 'Build Docker image distribution'
+  dependsOn: TestLinuxRpmDistributions
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Bash@3
+    displayName: 'Build Docker image distribution'
+    inputs:
+      targetType: 'inline'
+      script: release/docker/pipeline.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+      failOnStderr: false
+    env:
+      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish docker build artifacts'
+    inputs:
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: docker
+- job: HomebrewFormulaDistribution
+  displayName: 'Build Homebrew formula distribution'
+  dependsOn: DockerDistribution
+  condition: succeeded()
+  pool:
+    vmImage: 'ubuntu-latest'
+  variables:
+    mssql_cli_src_url: 'https://github.com/microsoft/homebrew-azdata-cli-release/releases/download/15.0.2070/mssql-cli-1.0.0.tar.gz'
+  steps:
+  - task: CmdLine@2
+    displayName: 'Build Homebrew formula distribution'
+    inputs:
+      script: release/homebrew/pipeline-formula.sh
+      workingDirectory: $(Build.SourcesCliDirectory)
+  - task: CopyFiles@2
+    displayName: 'Copy homebrew artifacts to: $(Build.ArtifactStagingDirectory)/homebrew'
+    inputs:
+      sourceFolder: '$(Build.SourcesCliDirectory)/output/homebrew'
+      contents: '?(*.rb|*.gz|*.sh)'
+      TargetFolder: $(Build.ArtifactStagingDirectory)
+  - task: PublishPipelineArtifact@0
+    displayName: 'Publish Homebrew artifacts'
+    inputs:
+      TargetPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: $(HOMEBREW_FORMULA_ARTIFACT)

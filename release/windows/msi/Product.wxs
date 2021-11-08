@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="go-mssql-tools18-$(var.MSSQL_TOOLS_PACKAGE_VERSION)" Language="1033" Version="$(var.MSSQL_TOOLS_PACKAGE_VERSION)" Manufacturer="Microsoft" UpgradeCode="$(var.MSSQL_TOOLS_UPGRADE_CODE)">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of go-mssql-tools18-$(var.MSSQL_TOOLS_PACKAGE_VERSION) is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <UIRef Id="WixUI_Minimal"/>
+    <WixVariable Id="WixUILicenseRtf" Value="Eula\EulaText_1033.rtf"/>
+    <Feature Id="ProductFeature" Title="go-mssql-tools18" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+    <Property Id="MsiLogging" Value="voicewarmupx"/>
+  </Product>
+  
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="MICROSOFTSQLSERVER" Name="Microsoft SQL Server">
+          <Directory Id="MSSQLTOOLS" Name="go-mssql-tools18">
+            <Directory Id="INSTALLFOLDER" Name="$(var.MSSQL_TOOLS_PACKAGE_VERSION)">
+              <Directory Id="RESOURCES" Name="Resources">
+                <Directory Id="LCID" Name="1033"/>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="sqlcmd_files" Guid="C46E67BA-9C2A-4F1F-9040-B04F4A818555">
+        <File Id="sqlcmd_exe" Name="sqlcmd.exe" DiskId="1" Source="$(var.sqlcmd.TargetPath)" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>  
+</Wix>
