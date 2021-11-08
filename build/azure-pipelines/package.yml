@@ -12,7 +12,7 @@ variables:
   CLI_VERSION_REVISION: '1'
   CLI_COMMAND_EXCLUSION_LIST: 'go-mssqltools'
   CLI_PRE_INSTALLED_EXTENSION_LIST: ''
-  AZDATA_PACKAGE_VERSION: '$(CLI_VERSION)'
+  GO_MSSQLTOOLS_PACKAGE_VERSION: '$(CLI_VERSION)'
   HOMEBREW_FORMULA_ARTIFACT: 'homebrew-formula'
   Build.SourcesCliDirectory: '$(Build.SourcesDirectory)/'
   AZDATA_PIPELINE_RUN_NUMBER: $(Build.BuildNumber)
