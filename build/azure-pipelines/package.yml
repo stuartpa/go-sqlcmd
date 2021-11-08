@@ -142,7 +142,7 @@ stages:
           targetPath: $(Build.ArtifactStagingDirectory)
           artifactName: SqlcmdRelease
 
-  - stage: Windows MSI
+  - stage: WindowsMSI
     jobs:
     - job: WindowsMSIDistribution
       displayName: 'Build Windows MSI distribution'
@@ -296,7 +296,7 @@ stages:
           TargetPath: $(Build.ArtifactStagingDirectory)
           ArtifactName: debian-buster
 
-  - stage: Debian Stretch
+  - stage: DebianStretch
     jobs:
     - job: DebianStretchDistribution
       displayName: 'Build Debian Stretch distribution'
@@ -342,7 +342,7 @@ stages:
           TargetPath: $(Build.ArtifactStagingDirectory)
           ArtifactName: debian-stretch
 
-  - stage: Debian Jessie
+  - stage: DebianJessie
     jobs:
     - job: DebianJessiehDistribution
       displayName: 'Build Debian Jessie distribution'
@@ -389,7 +389,7 @@ stages:
           TargetPath: $(Build.ArtifactStagingDirectory)
           ArtifactName: debian-jessie
 
-  - stage: Ubuntu Bonic
+  - stage: UbuntuBonic
     jobs:
     - job: UbuntuBonicDistribution
       displayName: 'Build Ubuntu Bionic distribution'
@@ -436,7 +436,7 @@ stages:
           TargetPath: $(Build.ArtifactStagingDirectory)
           ArtifactName: ubuntu-bionic
 
-  - stage: Ubuntu Xenail
+  - stage: UbuntuXenail
     jobs:
     - job: UbuntuXenialDistribution
       displayName: 'Build Ubuntu Xenial distribution'
@@ -483,7 +483,7 @@ stages:
           TargetPath: $(Build.ArtifactStagingDirectory)
           ArtifactName: ubuntu-xenial
     
-  - stage: Ubuntu Focal Fossa
+  - stage: UbuntuFocalFossa
     jobs:
     - job: UbuntuFocalFossaDistribution
       displayName: 'Build Ubuntu Focal Fossa distribution'
@@ -541,7 +541,7 @@ stages:
           versionOption: custom
           versionPublish: '0.0.$(Build.BuildId)'
 
-  - stage: Test Linux Debian Distributions
+  - stage: TestLinuxDebianDistributions
     jobs:
     - job: TestLinuxDebianDistributions
       displayName: 'Test debian packages: apt'
@@ -593,7 +593,7 @@ stages:
         env:
           BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
 
-  - stage: RPM Distribution
+  - stage: RpmDistribution
     jobs:
     - job: RpmDistribution
       displayName: 'Build RPM Distribution'
@@ -658,7 +658,7 @@ stages:
     #    env:
     #      BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
 
-  - stage: Docker Distribution
+  - stage: DockerDistribution
     jobs:   
     - job: DockerDistribution
       displayName: 'Build Docker image distribution'
@@ -682,7 +682,7 @@ stages:
           pathtoPublish: $(Build.ArtifactStagingDirectory)
           artifactName: docker
 
-  - stage: Homebrew Distribution
+  - stage: HomebrewDistribution
     jobs:
     - job: HomebrewFormulaDistribution
       displayName: 'Build Homebrew formula distribution'
