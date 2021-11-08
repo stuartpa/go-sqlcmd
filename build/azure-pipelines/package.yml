@@ -536,12 +536,12 @@ stages:
 
   - stage: TestLinuxDebianDistributions
     dependsOn:
-      - DebianBusterDistribution
-      - DebianStretchDistribution
-      - DebianJessiehDistribution
-      - UbuntuBonicDistribution
-      - UbuntuXenialDistribution
-      - UbuntuFocalFossaDistribution
+      - DebianBuster
+      - DebianStretch
+      - DebianJessieh
+      - UbuntuBonic
+      - UbuntuXenial
+      - UbuntuFocalFossa
     jobs:
     - job: TestLinuxDebianDistributions
       displayName: 'Test debian packages: apt'
