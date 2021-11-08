@@ -146,7 +146,6 @@ stages:
     jobs:
     - job: WindowsMSIDistribution
       displayName: 'Build Windows MSI distribution'
-      dependsOn: SrcDistribution
       condition: succeeded()
       pool:
         vmImage: 'vs2017-win2016'
