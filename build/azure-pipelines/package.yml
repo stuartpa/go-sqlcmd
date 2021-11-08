@@ -249,7 +249,7 @@ stages:
           filePath: '$(Build.SourcesDirectory)\projects\cli\release\windows\scripts\pipeline-test.ps1'
           failOnStderr: true
 
-  - stage: Debian Buster
+  - stage: DebianBuster
     jobs:
     - job: DebianBusterDistribution
       displayName: 'Build Debian Buster distribution'
