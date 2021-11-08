@@ -286,9 +286,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: debian-buster'
         inputs:
@@ -331,9 +331,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: debian-stretch'
         inputs:
@@ -377,9 +377,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: debian-jessie'
         inputs:
@@ -423,9 +423,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: ubuntu-bionic'
         inputs:
@@ -469,9 +469,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: ubuntu-xenial'
         inputs:
@@ -515,9 +515,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.deb'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.deb'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: ubuntu-focal'
         inputs:
@@ -526,7 +526,7 @@ stages:
       - task: UniversalPackages@0
         displayName: "Publish Artifact ubuntu-focal to universal packages"
         inputs:
-          conditions: and(succeeded(), eq(skip.upload, 'false'))
+          #conditions: and(succeeded(), eq(skip.upload, 'false'))
           command: 'publish'
           publishDirectory: $(Build.ArtifactStagingDirectory)
           feedsToUsePublish: 'internal'
@@ -622,9 +622,9 @@ stages:
     #      SessionTimeout: '600'
     #      MaxConcurrency: '50'
     #      MaxRetryAttempts: '20'
-      - task: CodeSignValidationInjected@1
-        inputs:
-          Targets: '.rpm'
+      #- task: CodeSignValidationInjected@1
+      #  inputs:
+      #    Targets: '.rpm'
       - task: PublishPipelineArtifact@0
         displayName: 'Publish Artifact: rpm'
         inputs:
