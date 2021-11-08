@@ -535,13 +535,6 @@ stages:
           versionPublish: '0.0.$(Build.BuildId)'
 
   - stage: TestLinuxDebianDistributions
-    dependsOn:
-      - DebianBuster
-      - DebianStretch
-      - DebianJessieh
-      - UbuntuBonic
-      - UbuntuXenial
-      - UbuntuFocalFossa
     jobs:
     - job: TestLinuxDebianDistributions
       displayName: 'Test debian packages: apt'
