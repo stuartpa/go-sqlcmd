@@ -16,7 +16,7 @@
 
 tree /A /F $env:SYSTEM_ARTIFACTSDIRECTORY
 
-$msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "windows\msi\go-mssqltools.msi"
+$msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "msi\go-mssql-tools.msi"
 
 $msiPath
 
