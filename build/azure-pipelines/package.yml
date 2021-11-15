@@ -245,7 +245,7 @@ stages:
         displayName: Install and Load CLI
         inputs:
           targetType: 'filePath'
-          filePath: '$(Build.SourcesDirectory)\projects\cli\release\windows\scripts\pipeline-test.ps1'
+          filePath: '$(Build.SourcesDirectory)\release\windows\msi\scripts\pipeline-test.ps1'
           failOnStderr: true
 
   - stage: DebianBuster

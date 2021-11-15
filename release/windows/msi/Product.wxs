@@ -1,38 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="go-mssql-tools-$(var.MSSQL_TOOLS_PACKAGE_VERSION)" Language="1033" Version="$(var.MSSQL_TOOLS_PACKAGE_VERSION)" Manufacturer="Microsoft" UpgradeCode="$(var.MSSQL_TOOLS_UPGRADE_CODE)">
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of go-mssql-tools-$(var.MSSQL_TOOLS_PACKAGE_VERSION) is already installed." />
-    <MediaTemplate EmbedCab="yes" />
+
+  <?define ProductVersion="0.0.1.0" ?>
+
+  <?define ProductName = "Microsoft SQL Server Tools" ?>
+  <?define ProductDescription = "Command-line tools for SQL Server." ?>
+  <?define ProductAuthor = "Microsoft Corporation" ?>
+  <?define ProductResources = ".\resources\" ?>
+
+  <Product Id="*"
+           Name="$(var.ProductName)"
+           Language="1033"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.ProductAuthor)"
+           UpgradeCode="{6EF5B209-E667-4D2E-8850-F9E4FC99AEEB}">
+
+    <Package InstallerVersion="300"
+             Compressed="yes"
+             InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." Schedule="afterInstallExecute" />
+
+    <Media Id="1" Cabinet="mssqltools.cab" EmbedCab="yes"  CompressionLevel="high" />
+
+    <Icon Id="MssqlToolsIcon" SourceFile="$(var.ProductResources)windowsazdata.ico" />
+
+    <Property Id="ARPPRODUCTICON" Value="MssqlToolsIcon" />
+    <Property Id="ARPHELPLINK" Value="https://docs.microsoft.com/en-us/cli/azdata" />
+    <Property Id="ARPURLINFOABOUT" Value="https://docs.microsoft.com/en-us/cli/azdata/overview" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://docs.microsoft.com/en-us/cli/azdata/overview" />
+    <Property Id="ApplicationFolderName" Value="Microsoft SQL Server\Tools" />
+    <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+
+    <!-- User Interface -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProductResources)CLI_LICENSE.rtf"/>
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.ProductResources)Dialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.ProductResources)Banner.bmp" />
+
     <UIRef Id="WixUI_Minimal"/>
-    <WixVariable Id="WixUILicenseRtf" Value="Eula\EulaText_1033.rtf"/>
-    <Feature Id="ProductFeature" Title="go-mssql-tools" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
-    </Feature>
-    <Property Id="MsiLogging" Value="voicewarmupx"/>
-  </Product>
-  
-  <Fragment>
+    <UIRef Id="WixUI_ErrorProgressText"/>
+
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
-        <Directory Id="MICROSOFTSQLSERVER" Name="Microsoft SQL Server">
-          <Directory Id="MSSQLTOOLS" Name="go-mssql-tools">
-            <Directory Id="INSTALLFOLDER" Name="$(var.MSSQL_TOOLS_PACKAGE_VERSION)">
-              <Directory Id="RESOURCES" Name="Resources">
-                <Directory Id="LCID" Name="1033"/>
-              </Directory>
-            </Directory>
+        <Directory Id="MSSQLFOLDER" Name="Microsoft Sql Server">
+          <Directory Id="MSSQLTOOLSFOLDER" Name="Tools">
           </Directory>
         </Directory>
       </Directory>
     </Directory>
-  </Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="sqlcmd_files" Guid="C102127A-1B2A-490C-97B5-D3E660FB1124">
-        <File Id="sqlcmd_exe" Name="sqlcmd.exe" DiskId="1" Source="$(Pipeline.Workspace)\SqlcmdWindows_NT\Sqlcmd.exe" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>  
+    <DirectoryRef Id="MSSQLTOOLSFOLDER">
+        <Component Id="sqlcmd.exe" Guid="BD614D17-FD54-4DF3-AA53-C0AE8780480C">
+            <File Id="sqlcmd.exe" Source="$(Pipeline.Workspace)\SqlcmdWindows_NT\sqlcmd.exe" KeyPath="yes" Checksum="yes"/>
+        </Component>
+    </DirectoryRef>
+    
+    <Feature Id="ProductFeature"
+             Title="Microsoft SQL Server Tools’"
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="sqlcmd.exe" />
+    </Feature>
+
+  </Product>
 </Wix>

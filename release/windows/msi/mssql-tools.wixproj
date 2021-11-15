@@ -25,6 +25,12 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Release;MSSQL_TOOLS_PACKAGE_VERSION=$(MSSQL_TOOLS_PACKAGE_VERSION);MSSQL_TOOLS_UPGRADE_CODE=$(MSSQL_TOOLS_UPGRADE_CODE)</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <WixVariables>
+    </WixVariables>
+    <LeaveTemporaryFiles>True</LeaveTemporaryFiles>
+    <DefineConstants>Debug;MSSQL_TOOLS_PACKAGE_VERSION=$(MSSQL_TOOLS_PACKAGE_VERSION);MSSQL_TOOLS_UPGRADE_CODE=$(MSSQL_TOOLS_UPGRADE_CODE);CLI_VERSION=0.1.0.0</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />
   </ItemGroup>
