@@ -14,7 +14,7 @@
 #
 # $ pipeline-test.ps1
 
-tree $env:SYSTEM_ARTIFACTSDIRECTORY
+tree /A /F $env:SYSTEM_ARTIFACTSDIRECTORY
 
 $msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "windows\msi\go-mssqltools.msi"
 
