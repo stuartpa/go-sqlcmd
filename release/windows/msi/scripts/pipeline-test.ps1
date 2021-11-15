@@ -14,7 +14,7 @@
 #
 # $ pipeline-test.ps1
         
-$msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "msi\go-mssqltools.msi"
+$msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "windows\msi\go-mssqltools.msi"
 
 $InstallArgs = @(
     "/I"
