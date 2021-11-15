@@ -225,7 +225,7 @@ stages:
       - task: CopyFiles@2
         displayName: 'Copy MSI to: $(Build.ArtifactStagingDirectory)/windows/msi'
         inputs:
-          sourceFolder: $(Build.SourcesDirectory)/windows/msi/bin/Release
+          sourceFolder: $(Build.SourcesDirectory)/release/windows/msi/bin/Release
           contents: '?(*.msi|*.md)'
           TargetFolder: $(Build.ArtifactStagingDirectory)/windows/msi
       - task: publishPipelineArtifact@0
