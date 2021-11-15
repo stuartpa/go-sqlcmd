@@ -153,6 +153,10 @@ stages:
         wix_download_url: 'https://azdataartifacts.blob.core.windows.net/util/wix314-binaries-mirror.zip'
         MSI_OUTPUT_DIR: '$(Build.SourcesCliDirectory)/output/msi'
       steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          targetPath: '$(Pipeline.Workspace)'
       - task: VSBuild@1
         displayName: 'Build Windows MSI distribution'
         inputs:
