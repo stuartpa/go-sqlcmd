@@ -51,7 +51,7 @@
 
     <DirectoryRef Id="MSSQLTOOLSFOLDER">
         <Component Id="sqlcmd.exe" Guid="BD614D17-FD54-4DF3-AA53-C0AE8780480C">
-            <File Id="sqlcmd.exe" Source="$(Pipeline.Workspace)\SqlcmdWindows_NT\sqlcmd.exe" KeyPath="yes" Checksum="yes"/>
+            <File Id="sqlcmd.exe" Source="[%PIPELINE_WORKSPACE]\SqlcmdWindows_NT\sqlcmd.exe" KeyPath="yes" Checksum="yes"/>
         </Component>
     </DirectoryRef>
     
