@@ -216,22 +216,22 @@ stages:
       #      SessionTimeout: '600'
       #      MaxConcurrency: '50'
       #      MaxRetryAttempts: '20'
-      - task: Bash@3
-        displayName: 'Rename MSI'
-        inputs:
-          targetType: 'inline'
-          script: |
-            mv "${MSI_OUTPUT_DIR}/Azure Data CLI.msi" ${MSI_OUTPUT_DIR}/azdata-cli-${CLI_VERSION}.msi
+      # - task: Bash@3
+      #  displayName: 'Rename MSI'
+      #  inputs:
+      #   targetType: 'inline'
+      #    script: |
+      #      mv "${MSI_OUTPUT_DIR}/Azure Data CLI.msi" ${MSI_OUTPUT_DIR}/azdata-cli-${CLI_VERSION}.msi
       - task: CopyFiles@2
-        displayName: 'Copy MSI to: $(Build.ArtifactStagingDirectory)/windows'
+        displayName: 'Copy MSI to: $(Build.ArtifactStagingDirectory)/windows/msi'
         inputs:
-          sourceFolder: $(Build.SourcesCliDirectory)/output/msi
+          sourceFolder: $(Build.SourcesDirectory)/windows/msi/bin/Release
           contents: '?(*.msi|*.md)'
-          TargetFolder: $(Build.ArtifactStagingDirectory)/windows
+          TargetFolder: $(Build.ArtifactStagingDirectory)/windows/msi
       - task: publishPipelineArtifact@0
         displayName: 'Publish MSI build artifacts'
         inputs:
-          TargetPath: $(Build.ArtifactStagingDirectory)/windows
+          TargetPath: $(Build.ArtifactStagingDirectory)/windows/msi
           ArtifactName: msi
     - job: TestWindowsMSIDistribution
       displayName: Test Windows MSI distribution
