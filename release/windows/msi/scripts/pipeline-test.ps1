@@ -34,5 +34,5 @@ Write-Output "$env:path"
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
 Write-Output "$env:path"
 
-sqlcmd
-sqlcmd --version
+$sqlcmd = $env:ProgramFiles + "\Microsoft SQL Server\Tools\sqlcmd"
+& $sqlcmd --help
