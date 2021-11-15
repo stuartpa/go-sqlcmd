@@ -13,8 +13,12 @@
 # set SYSTEM_ARTIFACTSDIRECTORY=\path\to\msi\go-mssqltools-<CL_VERSION>.msi
 #
 # $ pipeline-test.ps1
-        
+
+tree $env:SYSTEM_ARTIFACTSDIRECTORY
+
 $msiPath = Join-Path $env:SYSTEM_ARTIFACTSDIRECTORY "windows\msi\go-mssqltools.msi"
+
+$msiPath
 
 $InstallArgs = @(
     "/I"
