@@ -55,5 +55,5 @@ for i in ${!DISTRO_BASE_IMAGE[@]}; do
                -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
                -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
                "${image}" \
-               /mnt/repo/release/linux/rpm/build-rpm.sh
+               /mnt/repo/linux/rpm/build-rpm.sh
 done
