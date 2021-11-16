@@ -70,7 +70,7 @@ ${WORKDIR}/linux/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
 cd ${WORKDIR}
 dpkg-buildpackage -us -uc
 
-ls -R
+ls ${WORKDIR} -R
 
 debPkg=${WORKDIR}/../go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}_all.deb
 cp ${debPkg} /mnt/output/
