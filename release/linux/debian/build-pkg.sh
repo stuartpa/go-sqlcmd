@@ -57,6 +57,7 @@ export LANG=en_US.UTF-8
 export PATH=${WORKDIR}/python_env/bin:$PATH
 
 # Verify
+chmod u+x /mnt/workspace/SqlcmdLinux/sqlcmd
 /mnt/workspace/SqlcmdLinux/sqlcmd --help
 
 mkdir /opt/stage
