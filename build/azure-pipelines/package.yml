@@ -263,7 +263,7 @@ stages:
       - task: CmdLine@2
         displayName: 'Build Debian Buster distribution'
         inputs:
-          script: release/debian/pipeline.sh
+          script: release/linux/debian/pipeline.sh
           workingDirectory: $(Build.SourcesCliDirectory)
         env:
           DISTRO: buster
