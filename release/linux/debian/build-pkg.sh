@@ -72,5 +72,5 @@ dpkg-buildpackage -us -uc
 
 ls -R
 
-debPkg=${WORKDIR}/../go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}.deb
+debPkg=${WORKDIR}/../go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}_all.deb
 cp ${debPkg} /mnt/output/
