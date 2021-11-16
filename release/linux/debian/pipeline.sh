@@ -52,6 +52,8 @@ echo "=========================================================="
 
 mkdir -p ${DIST_DIR} || exit 1
 
+echo ${REPO_ROOT_DIR}
+
 docker run --rm \
            -v "${REPO_ROOT_DIR}":/mnt/repo \
            -v "${DIST_DIR}":/mnt/output \
