@@ -18,11 +18,10 @@ set -exv
 : "${CLI_VERSION_REVISION:?CLI_VERSION_REVISION environment variable not set.}"
 
 yum update -y
-yum install -y postgresql-devel wget rpm-build gcc gcc-c++ libffi-devel python3-devel python3-virtualenv openssl-devel \
-         make bash coreutils diffutils patch perl \
-         unixODBC unixODBC-devel zeromq zeromq-devel krb5-devel
+yum install -y wget rpm-build gcc gcc-c++ \
+         make bash coreutils diffutils patch
 
 export LC_ALL=en_US.UTF-8
 export REPO_ROOT_DIR=`cd $(dirname $0); cd ../../; pwd`
 
-rpmbuild -v -bb --clean ${REPO_ROOT_DIR}/release/rpm/go-mssqltools.spec && cp /root/rpmbuild/RPMS/x86_64/* /mnt/output
+rpmbuild -v -bb --clean ${REPO_ROOT_DIR}/linux/rpm/go-mssqltools.spec && cp /root/rpmbuild/RPMS/x86_64/* /mnt/output
