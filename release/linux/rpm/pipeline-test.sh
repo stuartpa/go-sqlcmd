@@ -28,12 +28,7 @@ set -exv
 
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
 
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1}
 BUILD_ARTIFACTSTAGINGDIRECTORY=${BUILD_ARTIFACTSTAGINGDIRECTORY:=${REPO_ROOT_DIR}/output}/rpm

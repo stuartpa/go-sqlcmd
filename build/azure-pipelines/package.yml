@@ -399,11 +399,15 @@ stages:
       pool:
         vmImage: 'ubuntu-latest'
       steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          targetPath: '$(Pipeline.Workspace)'
       - task: Bash@3
         displayName: 'Build Docker image distribution'
         inputs:
           targetType: 'inline'
-          script: release/docker/pipeline.sh
+          script: release/linux/docker/pipeline.sh
           workingDirectory: $(Build.SourcesCliDirectory)
           failOnStderr: false
         env:

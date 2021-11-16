@@ -20,12 +20,7 @@
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/docker}
 IMAGE_NAME=microsoft/go-mssqltools-cli${BUILD_BUILDNUMBER:=''}
 
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
