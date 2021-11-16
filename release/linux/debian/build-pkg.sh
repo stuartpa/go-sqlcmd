@@ -56,27 +56,20 @@ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 export LANG=en_US.UTF-8
 export PATH=${WORKDIR}/python_env/bin:$PATH
 
-cat /proc/mounts
-
-ls -R /mnt/workspace
-
 # Verify
-sqlcmd
-sqlcmd --help
+/mnt/workspace/SqlcmdLinux/sqlcmd --help
 
 mkdir /opt/stage
-cp -r ${WORKDIR}/python_env/ /opt/stage
+cp /mnt/workspace/SqlcmdLinux/sqlcmd /opt/stage/sqlcmd
 
 # Create create directory for debian build
 mkdir -p ${WORKDIR}/debian
 ${WORKDIR}/release/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
 
 cd ${WORKDIR}
-mv Makefile Makefile.bk
 dpkg-buildpackage -us -uc
-mv Makefile.bk Makefile
 
-debPkg=${WORKDIR}/../azdata-cli_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}_all.deb
+debPkg=${WORKDIR}/../go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}.deb
 cp ${debPkg} /mnt/output/
 
 # cleanup in mount

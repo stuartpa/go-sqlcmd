@@ -268,10 +268,9 @@ export DH_OPTIONS=-v
 ${TAB}dh \$@ --sourcedirectory $source_dir
 
 override_dh_install:
-${TAB}mkdir -p debian/go-mssqltools/opt/azdata
 ${TAB}mkdir -p debian/go-mssqltools/usr/bin/
-${TAB}cp -r /opt/stage/python_env/* python_env
-${TAB}chmod 0755 debian/go-mssqltools/usr/bin/go-sqlcmd
+${TAB}cp -r /opt/stage/sqlcmd debian/go-mssqltools/usr/bin/sqlcmd
+${TAB}chmod 0755 debian/go-mssqltools/usr/bin/sqlcmd
 
 override_dh_strip:
 ${TAB}dh_strip --exclude=_cffi_backend
