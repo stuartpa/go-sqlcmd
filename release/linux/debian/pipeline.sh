@@ -63,4 +63,4 @@ docker run --rm \
            -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
            -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
            "${DISTRO_BASE_IMAGE}" \
-           /mnt/repo/release/linux/debian/build-pkg.sh
+           /mnt/repo/linux/debian/build-pkg.sh
