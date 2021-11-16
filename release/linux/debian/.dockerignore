@@ -5,9 +5,6 @@
 !output/*
 
 # Make an exception
-!azdata-cli-extensions/*
-
-# Make an exception
 !release/*
 
 # Make an exception

@@ -39,12 +39,7 @@ set -exv
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/debian}
 
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
@@ -66,4 +61,4 @@ docker run --rm \
            -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
            -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
            "${DISTRO_BASE_IMAGE}" \
-           /mnt/repo/release/debian/build-pkg.sh
+           /mnt/repo/release/linux/debian/build-pkg.sh
