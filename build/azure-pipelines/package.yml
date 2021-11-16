@@ -153,11 +153,11 @@ stages:
         wix_download_url: 'https://azdataartifacts.blob.core.windows.net/util/wix314-binaries-mirror.zip'
         MSI_OUTPUT_DIR: '$(Build.SourcesCliDirectory)/output/msi'
       steps:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          buildType: 'current'
-          targetPath: '$(Pipeline.Workspace)'
-      - task: VSBuild@1
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        targetPath: '$(Pipeline.Workspace)'
+    - task: VSBuild@1
         displayName: 'Build Windows MSI distribution'
         inputs:
           solution: '$(Build.SourcesCliDirectory)\release\windows\msi\mssql-tools.wixproj'
@@ -260,6 +260,10 @@ stages:
       pool:
         vmImage: 'ubuntu-20.04'
       steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          targetPath: '$(Pipeline.Workspace)'
       - task: CmdLine@2
         displayName: 'Build Debian Buster distribution'
         inputs:
