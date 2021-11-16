@@ -56,7 +56,9 @@ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 export LANG=en_US.UTF-8
 export PATH=${WORKDIR}/python_env/bin:$PATH
 
-ls -R /workspace
+cat /proc/mounts
+
+ls -R /mnt/workspace
 
 # Verify
 sqlcmd

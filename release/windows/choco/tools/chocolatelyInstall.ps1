@@ -1,22 +1,18 @@
-$ErrorActionPreference = 'Stop'
-
-$toolsDir = Split-Path $MyInvocation.MyCommand.Definition
-
-$mergeTasks = "!runCode"
-Write-Host "Merge Tasks: `n$mergeTasks"
+dir$packageName= 'go-mssqltools'
+$toolsDir   = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
+$url        = 'https://dl.pstmn.io/download/version/9.1.3/windows32'
+$url64      = 'https://dl.pstmn.io/download/version/9.1.3/windows64'
 
 $packageArgs = @{
-  packageName    = 'azure-data-studio'
-  fileType       = 'EXE'
-  url64bit       = 'https://sqlopsbuilds.azureedge.net/stable/6783aa6967e8c6d086b6f04e5fbf527659981389/azuredatastudio-windows-setup-1.33.0.exe'
-
-  softwareName   = 'Azure Data Studio'
-
-  checksum64     = '275FB13FBBBC72D150D8AB63B745A9978F05A500682D288E10405A5B00197A5A'
-  checksumType64 = 'sha256'
-
-  silentArgs     = "/verysilent /suppressmsgboxes /mergetasks=""$mergeTasks"" /log=""$env:temp\azure-data-studio.log"""
-  validExitCodes = @(0, 3010, 1641)
+  packageName   = $packageName
+  fileType      = 'exe'
+  url           = $url
+  url64bit      = $url64
+  silentArgs    = "-s"
+  checksum      = '93A8FC64ED4B80A90F85A3330773527794D175F84BEA4C500534C3380AFF7BA7'
+  checksumType  = 'sha256'
+  checksum64    = 'E005EB63A3E8613E18357A37D120065730E0BF71D86B12FD72D4224DDEB64193'
+  checksumType64= 'sha256'
 }
 
 Install-ChocolateyPackage @packageArgs
