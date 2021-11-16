@@ -52,13 +52,13 @@ Source: go-mssqltools
 Section: golang
 Priority: extra
 Maintainer: go-mssql tools Team <dpgswdist@microsoft.com>
-Build-Depends: debhelper (>= 9), libssl-dev, libffi-dev, python3-dev, libkrb5-dev
+Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.5
 Homepage: http://www.microsoft.com/sql
 
 Package: go-mssqltools
 Architecture: all
-Depends: unixodbc, libkrb5-dev, \${shlibs:Depends}, \${misc:Depends}
+Depends: \${shlibs:Depends}, \${misc:Depends}
 Description: GO MSSQL TOOLS CLI
  GO MSSQL TOOLS CLI, a multi-platform command line experience for SQL Server and Azure SQL.
 
