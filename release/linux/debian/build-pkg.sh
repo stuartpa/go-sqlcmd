@@ -65,13 +65,10 @@ cp /mnt/workspace/SqlcmdLinux/sqlcmd /opt/stage/sqlcmd
 
 # Create create directory for debian build
 mkdir -p ${WORKDIR}/debian
-${WORKDIR}/release/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
+${WORKDIR}/linux/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
 
 cd ${WORKDIR}
 dpkg-buildpackage -us -uc
 
 debPkg=${WORKDIR}/../go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION:=1}.deb
 cp ${debPkg} /mnt/output/
-
-# cleanup in mount
-#rm -rf ${WORKDIR}/python_env
