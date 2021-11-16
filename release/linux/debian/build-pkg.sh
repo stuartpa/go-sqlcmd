@@ -54,6 +54,11 @@ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     update-locale LANG=en_US.UTF-8
 
 export LANG=en_US.UTF-8
+export PATH=${WORKDIR}/python_env/bin:$PATH
+
+echo ${WORKDIR}
+
+ls -R ${WORKDIR}
 
 # Verify
 sqlcmd
