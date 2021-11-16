@@ -331,10 +331,14 @@ stages:
       pool:
         vmImage: 'ubuntu-20.04'
       steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          targetPath: '$(Pipeline.Workspace)'
       - task: CmdLine@2
         displayName: 'Build RPM distribution'
         inputs:
-          script: release/rpm/pipeline.sh
+          script: release/linux/rpm/pipeline.sh
           workingDirectory: $(Build.SourcesCliDirectory)
         env:
           BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)

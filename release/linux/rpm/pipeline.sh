@@ -24,12 +24,7 @@ set -exv
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/rpm}
 DISTRO_BASE_IMAGE=( centos:centos7 fedora:29 )
 
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
@@ -53,11 +48,12 @@ for i in ${!DISTRO_BASE_IMAGE[@]}; do
     docker run --rm \
                -v "${REPO_ROOT_DIR}":/mnt/repo \
                -v "${DIST_DIR}":/mnt/output \
+               -v "${PIPELINE_WORKSPACE}":/mnt/workspace \
                -e CLI_VERSION=${CLI_VERSION} \
                -e CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1} \
                -e CLI_COMMAND_EXCLUSION_LIST=${CLI_COMMAND_EXCLUSION_LIST} \
                -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
                -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
                "${image}" \
-               /mnt/repo/release/rpm/build-rpm.sh
+               /mnt/repo/release/linux/rpm/build-rpm.sh
 done

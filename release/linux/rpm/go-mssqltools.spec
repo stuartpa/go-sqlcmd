@@ -6,7 +6,6 @@
   %define dist .el%{?rhel}
 %endif
 
-%define python_cmd python3
 %define name           go-mssqltools
 %define release        1%{?dist}
 %define version        %{getenv:CLI_VERSION}
@@ -27,10 +26,6 @@ Version:        %{version}
 Release:        %{release}
 Url:            http://www.microsoft.com/sql
 BuildArch:      x86_64
-Requires:       %{python_cmd}
-
-BuildRequires:  gcc, perl, libffi-devel, openssl-devel, unixODBC-devel krb5-devel
-BuildRequires:  %{python_cmd}-devel
 
 %description
 MSSQL TOOLS CLI, a multi-platform command line experience for SQL Server and Azure SQL.
@@ -40,12 +35,7 @@ MSSQL TOOLS CLI, a multi-platform command line experience for SQL Server and Azu
 
 # Create executable
 mkdir -p %{buildroot}%{_bindir}
-python_version=$(ls %{buildroot}%{cli_lib_dir}/lib/ | head -n 1)
-printf "#!/usr/bin/env bash\nPYTHONPATH=%{cli_lib_dir}/lib/${python_version}/site-packages %{python_cmd} -sm azdata.cli \"\$@\"" > %{buildroot}%{_bindir}/azdata
-rm %{buildroot}%{cli_lib_dir}/bin/python* %{buildroot}%{cli_lib_dir}/bin/pip*
+cp /mnt/workspace/SqlcmdLinux/sqlcmd %{buildroot}%{_bindir}
 
 %files
-%exclude %{cli_lib_dir}/bin/
-%attr(-,root,root) %{cli_lib_dir}
-%config(noreplace) %{_sysconfdir}/bash_completion.d/azdata-cli
-%attr(0755,root,root) %{_bindir}/azdata
+%attr(0755,root,root) %{_bindir}/sqlcmd
