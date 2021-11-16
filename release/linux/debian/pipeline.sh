@@ -57,6 +57,7 @@ echo ${REPO_ROOT_DIR}
 docker run --rm \
            -v "${REPO_ROOT_DIR}":/mnt/repo \
            -v "${DIST_DIR}":/mnt/output \
+           -v "${PIPELINE_WORKSPACE}":/mnt/workspace \
            -e CLI_VERSION=${CLI_VERSION} \
            -e CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1}~${DISTRO} \
            -e CLI_COMMAND_EXCLUSION_LIST=${CLI_COMMAND_EXCLUSION_LIST} \

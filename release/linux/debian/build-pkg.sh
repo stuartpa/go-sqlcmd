@@ -56,9 +56,7 @@ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 export LANG=en_US.UTF-8
 export PATH=${WORKDIR}/python_env/bin:$PATH
 
-echo ${BUILD_STAGINGDIRECTORY}
-
-ls -R ${BUILD_STAGINGDIRECTORY}
+ls -R /workspace
 
 # Verify
 sqlcmd
