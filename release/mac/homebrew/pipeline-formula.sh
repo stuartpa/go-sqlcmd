@@ -18,12 +18,7 @@
 IMAGE_NAME=microsoft/go-mssqltools:homebrew-builder
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
 DIST_DIR=${REPO_ROOT_DIR}/output/homebrew
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 mkdir -p ${DIST_DIR}
 
@@ -64,7 +59,7 @@ echo "out: ${out}"
 echo "containerId: ${containerId}"
 echo "=========================================================="
 
-docker cp ${REPO_ROOT_DIR}/release/homebrew ${containerId}:./go-mssqltools
+docker cp ${REPO_ROOT_DIR}/release/mac/homebrew ${containerId}:./go-mssqltools
 
 # -- if no upstream url given, use local source bundle formula `file://` URI --
 if  [ -z "$HOMEBREW_UPSTREAM_URL" ] ;
@@ -88,7 +83,7 @@ docker cp ${containerId}:go-mssqltools.rb ${DIST_DIR}
 INSTALL_TPL="#!/usr/bin/env bash\n: \"\${BASE_DIR:=\`cd \$(dirname \$0); pwd\`}\"\
 \nsed -i '.tmp' \"s|{{PWD}}|\$BASE_DIR|g\" go-mssqltools.rb\
 \nif [[ -z \"\$1\"  ]]; then arg=\"--build-from-source\"; else arg=\"\$1\"; fi\
-\nHOMEBREW_NO_ENV_FILTERING=1 ACCEPT_EULA=Y brew install \$arg ./go-mssqltools.rb --debug"
+\nHOMEBREW_NO_ENV_FILTERING=1 ACCEPT_EULA=Y brew install \$arg ./go-mssqltools.rb --help"
 echo -e ${INSTALL_TPL} > ${DIST_DIR}/install.sh
 chmod 755 ${DIST_DIR}/install.sh
 

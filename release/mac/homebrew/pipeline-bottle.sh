@@ -20,12 +20,7 @@ set -e
 
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
 DIST_DIR=${REPO_ROOT_DIR}/output/homebrew
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
+CLI_VERSION=0.0.1
 
 # -- script intended to run on macOs --
 osxVersion=$(sw_vers -productVersion| awk -F '[.]' '{print $2}')
@@ -58,12 +53,12 @@ brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-rel
 brew update
 HOMEBREW_NO_ENV_FILTERING=1 ACCEPT_EULA=Y brew install msodbcsql17 mssql-tools
 # Remove these as they are not needed and increases build time unnecessarily
-brew uninstall azure-cli php glib aws-sam-cli --force
+brew uninstall go-mssqltools --force
 
 if [ ! -d "$HOMEBREW_FORMULA_ARTIFACT_DIR" ] ;
 then
     echo "Building formula artifacts"
-    ${REPO_ROOT_DIR}/release/homebrew/pipeline-formula.sh
+    ${REPO_ROOT_DIR}/release/mac/homebrew/pipeline-formula.sh
 
     # -- if no exsisting dir was provided use the default staging dir --
     if [ -z "$HOMEBREW_FORMULA_ARTIFACT_DIR" ] ;
@@ -100,12 +95,7 @@ popd
 echo "=========================================================="
 echo "sqlcmd"
 echo "=========================================================="
-sqlcmd
-
-echo "=========================================================="
-echo "sqlcmd --version"
-echo "=========================================================="
-sqlcmd --version
+sqlcmd --help
 
 echo "=========================================================="
 echo "Audit go-mssqltools formula"

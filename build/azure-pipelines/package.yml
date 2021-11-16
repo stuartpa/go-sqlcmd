@@ -431,7 +431,7 @@ stages:
       - task: CmdLine@2
         displayName: 'Build Homebrew formula distribution'
         inputs:
-          script: release/homebrew/pipeline-formula.sh
+          script: release/mac/homebrew/pipeline-formula.sh
           workingDirectory: $(Build.SourcesCliDirectory)
       - task: CopyFiles@2
         displayName: 'Copy homebrew artifacts to: $(Build.ArtifactStagingDirectory)/homebrew'
