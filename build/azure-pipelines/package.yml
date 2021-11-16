@@ -267,7 +267,7 @@ stages:
           workingDirectory: $(Build.SourcesCliDirectory)
         env:
           DISTRO: buster
-          DISTRO_BASE_IMAGE: debian:buster
+          DISTRO_BASE_IMAGE: debian
           BUILD_STAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
     # Temporarily disable code signing to unblock GO-MSSQLTOOLS CLI build pipeline
     #  - task: EsrpCodeSigning@1
