@@ -28,6 +28,7 @@ const (
 	SQLCMDCOLSEP            = "SQLCMDCOLSEP"
 	SQLCMDCOLWIDTH          = "SQLCMDCOLWIDTH"
 	SQLCMDERRORLEVEL        = "SQLCMDERRORLEVEL"
+	SQLCMDFORMAT            = "SQLCMDFORMAT"
 	SQLCMDMAXVARTYPEWIDTH   = "SQLCMDMAXVARTYPEWIDTH"
 	SQLCMDMAXFIXEDTYPEWIDTH = "SQLCMDMAXFIXEDTYPEWIDTH"
 	SQLCMDEDITOR            = "SQLCMDEDITOR"
@@ -41,6 +42,7 @@ var builtinVariables = []string{
 	SQLCMDDBNAME,
 	SQLCMDEDITOR,
 	SQLCMDERRORLEVEL,
+	SQLCMDFORMAT,
 	SQLCMDHEADERS,
 	SQLCMDINI,
 	SQLCMDLOGINTIMEOUT,
@@ -163,6 +165,20 @@ func (v Variables) RowsBetweenHeaders() int64 {
 	return h
 }
 
+// ErrorLevel controls the minimum level of errors that are printed
+func (v Variables) ErrorLevel() int64 {
+	return mustValue(v[SQLCMDERRORLEVEL])
+}
+
+// Format is the name of the results format
+func (v Variables) Format() string {
+	switch v[SQLCMDFORMAT] {
+	case "vert", "vertical":
+		return "vertical"
+	}
+	return "horizontal"
+}
+
 func mustValue(val string) int64 {
 	var n int64
 	_, err := fmt.Sscanf(val, "%d", &n)
@@ -252,14 +268,14 @@ func (variables *Variables) Setvar(name, value string) error {
 	return nil
 }
 
+const validVariableRunes = "_-"
+
 // ValidIdentifier determines if a given string can be used as a variable name
-// The native sqlcmd allowed some punctuation characters as part of a variable name
-// but this version will not.
 func ValidIdentifier(name string) error {
 
 	first := true
 	for _, c := range name {
-		if !unicode.IsLetter(c) && (first || !unicode.IsDigit(c)) {
+		if !unicode.IsLetter(c) && (first || (!unicode.IsDigit(c) && !strings.ContainsRune(validVariableRunes, c))) {
 			return fmt.Errorf("Invalid variable identifier %s", name)
 		}
 		first = false

@@ -8,7 +8,8 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
-	"github.com/gohxs/readline"
+	"github.com/denisenkom/go-mssqldb/azuread"
+	"github.com/microsoft/go-sqlcmd/pkg/console"
 	"github.com/microsoft/go-sqlcmd/pkg/sqlcmd"
 )
 
@@ -42,6 +43,11 @@ type SQLCmdArguments struct {
 	WorkstationName             string            `short:"H" help:"This option sets the sqlcmd scripting variable SQLCMDWORKSTATION. The workstation name is listed in the hostname column of the sys.sysprocesses catalog view and can be returned using the stored procedure sp_who. If this option is not specified, the default is the current computer name. This name can be used to identify different sqlcmd sessions."`
 	ApplicationIntent           string            `short:"K" default:"default" enum:"default,ReadOnly" help:"Declares the application workload type when connecting to a server. The only currently supported value is ReadOnly. If -K is not specified, the sqlcmd utility will not support connectivity to a secondary replica in an Always On availability group."`
 	EncryptConnection           string            `short:"N" default:"default" enum:"default,false,true,disable" help:"This switch is used by the client to request an encrypted connection."`
+	DriverLoggingLevel          int               `help:"Level of mssql driver messages to print."`
+	ExitOnError                 bool              `short:"b" help:"Specifies that sqlcmd exits and returns a DOS ERRORLEVEL value when an error occurs."`
+	ErrorSeverityLevel          uint8             `short:"V" help:"Controls the severity level that is used to set the ERRORLEVEL variable on exit."`
+	ErrorLevel                  int               `short:"m" help:"Controls which error messages are sent to stdout. Messages that have severity level greater than or equal to this level are sent."`
+	Format                      string            `short:"F" help:"Specifies the formatting for results." default:"horiz" enum:"horiz,horizontal,vert,vertical"`
 }
 
 // Validate accounts for settings not described by Kong attributes
@@ -75,11 +81,11 @@ func (a SQLCmdArguments) authenticationMethod(hasPassword bool) string {
 	if a.UseAad {
 		switch {
 		case a.UserName == "":
-			return sqlcmd.ActiveDirectoryIntegrated
+			return azuread.ActiveDirectoryIntegrated
 		case hasPassword:
-			return sqlcmd.ActiveDirectoryPassword
+			return azuread.ActiveDirectoryPassword
 		default:
-			return sqlcmd.ActiveDirectoryInteractive
+			return azuread.ActiveDirectoryInteractive
 		}
 	}
 	if a.AuthenticationMethod == "" {
@@ -94,7 +100,7 @@ func main() {
 	setVars(vars, &args)
 
 	// so far sqlcmd prints all the errors itself so ignore it
-	exitCode, _ := run(vars)
+	exitCode, _ := run(vars, &args)
 	os.Exit(exitCode)
 }
 
@@ -113,16 +119,16 @@ func setVars(vars *sqlcmd.Variables, args *SQLCmdArguments) {
 				return "true"
 			}
 			switch a.AuthenticationMethod {
-			case sqlcmd.ActiveDirectoryIntegrated:
-			case sqlcmd.ActiveDirectoryInteractive:
-			case sqlcmd.ActiveDirectoryPassword:
+			case azuread.ActiveDirectoryIntegrated:
+			case azuread.ActiveDirectoryInteractive:
+			case azuread.ActiveDirectoryPassword:
 				return "true"
 			}
 			return ""
 		},
 		sqlcmd.SQLCMDWORKSTATION: func(a *SQLCmdArguments) string { return args.WorkstationName },
 		sqlcmd.SQLCMDSERVER:      func(a *SQLCmdArguments) string { return a.Server },
-		sqlcmd.SQLCMDERRORLEVEL:  func(a *SQLCmdArguments) string { return "" },
+		sqlcmd.SQLCMDERRORLEVEL:  func(a *SQLCmdArguments) string { return fmt.Sprint(a.ErrorLevel) },
 		sqlcmd.SQLCMDPACKETSIZE: func(a *SQLCmdArguments) string {
 			if args.PacketSize > 0 {
 				return fmt.Sprint(args.PacketSize)
@@ -136,6 +142,7 @@ func setVars(vars *sqlcmd.Variables, args *SQLCmdArguments) {
 		sqlcmd.SQLCMDCOLWIDTH:          func(a *SQLCmdArguments) string { return "" },
 		sqlcmd.SQLCMDMAXVARTYPEWIDTH:   func(a *SQLCmdArguments) string { return "" },
 		sqlcmd.SQLCMDMAXFIXEDTYPEWIDTH: func(a *SQLCmdArguments) string { return "" },
+		sqlcmd.SQLCMDFORMAT:            func(a *SQLCmdArguments) string { return a.Format },
 	}
 	for varname, set := range varmap {
 		val := set(args)
@@ -151,40 +158,51 @@ func setVars(vars *sqlcmd.Variables, args *SQLCmdArguments) {
 
 }
 
-func setConnect(s *sqlcmd.Sqlcmd, args *SQLCmdArguments) {
+func setConnect(connect *sqlcmd.ConnectSettings, args *SQLCmdArguments, vars *sqlcmd.Variables) {
 	if !args.DisableCmdAndWarn {
-		s.Connect.Password = os.Getenv(sqlcmd.SQLCMDPASSWORD)
+		connect.Password = os.Getenv(sqlcmd.SQLCMDPASSWORD)
 	}
-	s.Connect.UseTrustedConnection = args.UseTrustedConnection
-	s.Connect.TrustServerCertificate = args.TrustServerCertificate
-	s.Connect.AuthenticationMethod = args.authenticationMethod(s.Connect.Password != "")
-	s.Connect.DisableEnvironmentVariables = args.DisableCmdAndWarn
-	s.Connect.DisableVariableSubstitution = args.DisableVariableSubstitution
-	s.Connect.ApplicationIntent = args.ApplicationIntent
-	s.Connect.LoginTimeoutSeconds = args.LoginTimeout
-	s.Connect.Encrypt = args.EncryptConnection
-	s.Connect.PacketSize = args.PacketSize
-	s.Connect.WorkstationName = args.WorkstationName
+	connect.ServerName = args.Server
+	if connect.ServerName == "" {
+		connect.ServerName, _ = vars.Get(sqlcmd.SQLCMDSERVER)
+	}
+	connect.Database = args.DatabaseName
+	if connect.Database == "" {
+		connect.Database, _ = vars.Get(sqlcmd.SQLCMDDBNAME)
+	}
+	connect.UserName = args.UserName
+	if connect.UserName == "" {
+		connect.UserName, _ = vars.Get(sqlcmd.SQLCMDUSER)
+	}
+	connect.UseTrustedConnection = args.UseTrustedConnection
+	connect.TrustServerCertificate = args.TrustServerCertificate
+	connect.AuthenticationMethod = args.authenticationMethod(connect.Password != "")
+	connect.DisableEnvironmentVariables = args.DisableCmdAndWarn
+	connect.DisableVariableSubstitution = args.DisableVariableSubstitution
+	connect.ApplicationIntent = args.ApplicationIntent
+	connect.LoginTimeoutSeconds = args.LoginTimeout
+	connect.Encrypt = args.EncryptConnection
+	connect.PacketSize = args.PacketSize
+	connect.WorkstationName = args.WorkstationName
+	connect.LogLevel = args.DriverLoggingLevel
+	connect.ExitOnError = args.ExitOnError
+	connect.ErrorSeverityLevel = args.ErrorSeverityLevel
 }
 
-func run(vars *sqlcmd.Variables) (int, error) {
+func run(vars *sqlcmd.Variables, args *SQLCmdArguments) (int, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return 1, err
 	}
 
-	iactive := args.InputFile == nil
-	var line *readline.Instance
+	iactive := args.InputFile == nil && args.Query == ""
+	var line sqlcmd.Console = nil
 	if iactive {
-		line, err = readline.New(">")
-		if err != nil {
-			return 1, err
-		}
-		defer line.Close()
+		line = console.NewConsole("")
 	}
 
 	s := sqlcmd.New(line, wd, vars)
-
+	setConnect(&s.Connect, args, vars)
 	if args.BatchTerminator != "GO" {
 		err = s.Cmd.SetBatchTerminator(args.BatchTerminator)
 		if err != nil {
@@ -195,7 +213,7 @@ func run(vars *sqlcmd.Variables) (int, error) {
 		return 1, err
 	}
 
-	setConnect(s, &args)
+	setConnect(&s.Connect, args, vars)
 	s.Format = sqlcmd.NewSQLCmdDefaultFormatter(false)
 	if args.OutputFile != "" {
 		err = s.RunCommand(s.Cmd["OUT"], []string{args.OutputFile})
@@ -210,11 +228,12 @@ func run(vars *sqlcmd.Variables) (int, error) {
 		once = true
 		s.Query = args.Query
 	}
-	err = s.ConnectDb("", "", "", !iactive)
+	// connect using no overrides
+	err = s.ConnectDb(nil, !iactive)
 	if err != nil {
 		return 1, err
 	}
-	if iactive {
+	if iactive || s.Query != "" {
 		err = s.Run(once, false)
 	} else {
 		for f := range args.InputFile {

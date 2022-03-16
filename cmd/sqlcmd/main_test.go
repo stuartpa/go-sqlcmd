@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const oneRowAffected = "(1 row affected)"
+
 func newKong(t *testing.T, cli interface{}, options ...kong.Option) *kong.Kong {
 	t.Helper()
 	options = append([]kong.Option{
@@ -65,6 +67,12 @@ func TestValidCommandLineToArgsConversion(t *testing.T) {
 		{[]string{"-a", "550", "-l", "45", "-H", "mystation", "-K", "ReadOnly", "-N", "true"}, func(args SQLCmdArguments) bool {
 			return args.PacketSize == 550 && args.LoginTimeout == 45 && args.WorkstationName == "mystation" && args.ApplicationIntent == "ReadOnly" && args.EncryptConnection == "true"
 		}},
+		{[]string{"-b", "-m", "15", "-V", "20"}, func(args SQLCmdArguments) bool {
+			return args.ExitOnError && args.ErrorLevel == 15 && args.ErrorSeverityLevel == 20
+		}},
+		{[]string{"-F", "vert"}, func(args SQLCmdArguments) bool {
+			return args.Format == "vert"
+		}},
 	}
 
 	for _, test := range commands {
@@ -91,6 +99,7 @@ func TestInvalidCommandLine(t *testing.T) {
 		{[]string{"-E", "-U", "someuser"}, "--use-trusted-connection and --user-name can't be used together"},
 		// the test prefix is a kong artifact https://github.com/alecthomas/kong/issues/221
 		{[]string{"-a", "100"}, "test: '-a 100': Packet size has to be a number between 512 and 32767."},
+		{[]string{"-F", "what"}, "--format must be one of \"horiz\",\"horizontal\",\"vert\",\"vertical\" but got \"what\""},
 	}
 
 	for _, test := range commands {
@@ -117,12 +126,12 @@ func TestRunInputFiles(t *testing.T) {
 	vars.Set(sqlcmd.SQLCMDMAXVARTYPEWIDTH, "0")
 	setVars(vars, &args)
 
-	exitCode, err := run(vars)
+	exitCode, err := run(vars, &args)
 	assert.NoError(t, err, "run")
 	assert.Equal(t, 0, exitCode, "exitCode")
 	bytes, err := os.ReadFile(o.Name())
 	if assert.NoError(t, err, "os.ReadFile") {
-		assert.Equal(t, "100"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol+"100"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
+		assert.Equal(t, "100"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol+oneRowAffected+sqlcmd.SqlcmdEol+"100"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol+oneRowAffected+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
 	}
 }
 
@@ -143,19 +152,19 @@ func TestQueryAndExit(t *testing.T) {
 	vars.Set("VAR1", "100")
 	setVars(vars, &args)
 
-	exitCode, err := run(vars)
+	exitCode, err := run(vars, &args)
 	assert.NoError(t, err, "run")
 	assert.Equal(t, 0, exitCode, "exitCode")
 	bytes, err := os.ReadFile(o.Name())
 	if assert.NoError(t, err, "os.ReadFile") {
-		assert.Equal(t, "100 val2"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
+		assert.Equal(t, "100 val2"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol+oneRowAffected+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
 	}
 }
 
 func TestAzureAuth(t *testing.T) {
 
 	if !canTestAzureAuth() {
-		t.Skip("AZURE auth environment variables are not set or server name is not an Azure DB name")
+		t.Skip("Server name is not an Azure DB name")
 	}
 	o, err := os.CreateTemp("", "sqlcmdmain")
 	assert.NoError(t, err, "os.CreateTemp")
@@ -168,20 +177,18 @@ func TestAzureAuth(t *testing.T) {
 	vars := sqlcmd.InitializeVariables(!args.DisableCmdAndWarn)
 	vars.Set(sqlcmd.SQLCMDMAXVARTYPEWIDTH, "0")
 	setVars(vars, &args)
-
-	exitCode, err := run(vars)
+	exitCode, err := run(vars, &args)
 	assert.NoError(t, err, "run")
 	assert.Equal(t, 0, exitCode, "exitCode")
 	bytes, err := os.ReadFile(o.Name())
 	if assert.NoError(t, err, "os.ReadFile") {
-		assert.Equal(t, "AZURE"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
+		assert.Equal(t, "AZURE"+sqlcmd.SqlcmdEol+sqlcmd.SqlcmdEol+oneRowAffected+sqlcmd.SqlcmdEol, string(bytes), "Incorrect output from run")
 	}
 }
 
+// Assuming public Azure, use AAD when SQLCMDUSER environment variable is not set
 func canTestAzureAuth() bool {
-	tenant := os.Getenv("AZURE_TENANT_ID")
-	clientId := os.Getenv("AZURE_CLIENT_ID")
-	clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
-	server := os.Getenv("SQLCMDSERVER")
-	return tenant != "" && clientId != "" && clientSecret != "" && strings.Contains(server, ".database.")
+	server := os.Getenv(sqlcmd.SQLCMDSERVER)
+	userName := os.Getenv(sqlcmd.SQLCMDUSER)
+	return strings.Contains(server, ".database.windows.net") && userName == ""
 }
