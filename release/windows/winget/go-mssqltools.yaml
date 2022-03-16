@@ -1,0 +1,21 @@
+PackageIdentifier: Mssql.Tools
+PackageVersion: 0.0.1
+PackageLocale: en-US
+Publisher: Microsoft
+PackageName: Microsoft SQL Server Tools
+License: MIT
+ShortDescription: Microsoft SQL Server Tools (sqlcmd)
+Tags: 
+- "Sql Server"
+- "MSSQL"
+- "sqlcmd"
+InstallModes: 
+ - "silent"
+Installers: 
+ - Architecture: x64
+   InstallerType: msix
+   InstallerUrl: https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle
+   InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
+   SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
+ManifestType: singleton
+ManifestVersion: 1.0.0
