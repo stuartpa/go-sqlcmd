@@ -26,15 +26,9 @@
 
 set -e #xv
 
-: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
+: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 
-CLI_VERSION=`cat src/azdata-cli-core/azdata/cli/core/__version__.py | \
-   grep __version__ | \
-   sed s/' '//g | \
-   sed s/'__version__='// | \
-   sed s/\"//g | \
-   sed "s/^'\(.*\)'$/\1/"`
-
+CLI_VERSION=${CLI_VERSION:=0.0.1}
 CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1}
 BUILD_ARTIFACTSTAGINGDIRECTORY=${BUILD_ARTIFACTSTAGINGDIRECTORY:=${REPO_ROOT_DIR}/output}/debian
 
@@ -54,24 +48,13 @@ for i in ${!DISTROS[@]}; do
     echo "Test debian package on ${DISTROS[$i]}"
     echo "=========================================================="
 
-    debPkg=azdata-cli_${CLI_VERSION}-${CLI_VERSION_REVISION}~${DISTROS[$i]}_all.deb
-
-    # -- include dep for distros that need libssl1.1 for tests --
-    dep=""
-    for j in ${!DISTROS_NEEDING_LIBSSL_DEP_TO_TEST[@]}; do
-        distro=${DISTROS_NEEDING_LIBSSL_DEP_TO_TEST[$j]}
-        if [[ "${distro}" == "${DISTROS[$i]}" ]]; then
-            dep="libssl1.1"
-        fi
-    done
+    debPkg=go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION}~${DISTROS[$i]}_all.deb
 
     script="apt-get update && \
-            apt-get install -y apt-transport-https unixodbc libkrb5-dev ${dep}&& \
+            apt-get install -y apt-transport-https unixodbc libkrb5-dev && \
             dpkg -i /mnt/artifacts/${debPkg} && \
             apt-get -f install && \
-            azdata && \
-            azdata --version && \
-            azdata extension list"
+            sqlcmd --help"
 
     docker pull ${BASE_IMAGES[$i]}
     docker run --rm -v ${BUILD_ARTIFACTSTAGINGDIRECTORY}:/mnt/artifacts \

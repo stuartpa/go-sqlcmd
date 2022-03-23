@@ -39,7 +39,7 @@ set -exv
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/debian}
 
-CLI_VERSION=0.0.1
+CLI_VERSION=${CLI_VERSION:=0.0.1}
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"

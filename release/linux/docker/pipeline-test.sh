@@ -16,7 +16,7 @@
 
 set -exv
 
-: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
+: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 
 CLI_VERSION=0.0.1
 
@@ -32,4 +32,4 @@ echo "Docker image file: ${TAR_FILE}"
 echo "=========================================================="
 
 docker load < ${TAR_FILE}
-docker run ${IMAGE_NAME} /bin/bash -c "sqlcmd --help" || exit 1
+docker run ${IMAGE_NAME} /bin/bash -c "/sqlcmd --help" || exit 1

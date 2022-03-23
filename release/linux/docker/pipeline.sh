@@ -18,7 +18,7 @@
 
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/docker}
-IMAGE_NAME=microsoft/go-mssqltools-cli${BUILD_BUILDNUMBER:=''}
+IMAGE_NAME=microsoft/go-mssqltools${BUILD_BUILDNUMBER:=''}
 
 CLI_VERSION=0.0.1
 
