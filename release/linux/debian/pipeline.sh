@@ -36,7 +36,7 @@ set -exv
 
 : "${DISTRO:?DISTRO environment variable not set.}"
 : "${DISTRO_BASE_IMAGE:?DISTRO_BASE_IMAGE environment variable not set.}"
-: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
+: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/debian}
 
 CLI_VERSION=0.0.1
@@ -64,4 +64,4 @@ docker run --rm \
            -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
            -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
            "${DISTRO_BASE_IMAGE}" \
-           /mnt/repo/linux/debian/build-pkg.sh
+           /mnt/repo/release/linux/debian/build-pkg.sh

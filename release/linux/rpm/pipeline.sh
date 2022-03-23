@@ -19,7 +19,7 @@
 
 set -exv
 
-: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
+: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/rpm}
 DISTRO_BASE_IMAGE=( centos:centos7 fedora:29 )
@@ -55,5 +55,5 @@ for i in ${!DISTRO_BASE_IMAGE[@]}; do
                -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
                -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
                "${image}" \
-               /mnt/repo/linux/rpm/build-rpm.sh
+               /mnt/repo/release/linux/rpm/build-rpm.sh
 done

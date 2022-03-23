@@ -17,7 +17,7 @@ set -exv
 : "${CLI_VERSION:?CLI_VERSION environment variable not set.}"
 : "${CLI_VERSION_REVISION:?CLI_VERSION_REVISION environment variable not set.}"
 
-WORKDIR=`cd $(dirname $0); cd ../../; pwd`
+WORKDIR=`cd $(dirname $0); cd ../../../; pwd`
 PYTHON_VERSION="3.6.5"
 
 ls -la ${WORKDIR}
@@ -57,15 +57,15 @@ export LANG=en_US.UTF-8
 export PATH=${WORKDIR}/python_env/bin:$PATH
 
 # Verify
-chmod u+x /mnt/workspace/SqlcmdLinux/sqlcmd
-/mnt/workspace/SqlcmdLinux/sqlcmd --help
+chmod u+x /mnt/workspace/sqlcmd
+/mnt/workspace/sqlcmd --help
 
 mkdir /opt/stage
-cp /mnt/workspace/SqlcmdLinux/sqlcmd /opt/stage/sqlcmd
+cp /mnt/workspace/sqlcmd /opt/stage/sqlcmd
 
 # Create create directory for debian build
 mkdir -p ${WORKDIR}/debian
-${WORKDIR}/linux/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
+${WORKDIR}/release/linux/debian/prepare-rules.sh ${WORKDIR}/debian ${WORKDIR}
 
 cd ${WORKDIR}
 dpkg-buildpackage -us -uc

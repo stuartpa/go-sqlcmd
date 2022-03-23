@@ -16,7 +16,7 @@
 # export BUILD_NUMBER=12345  (optional - used to identify the IMAGE_NAME)
 # $ pipeline.sh
 
-: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../; pwd`}"
+: "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/docker}
 IMAGE_NAME=microsoft/go-mssqltools-cli${BUILD_BUILDNUMBER:=''}
 

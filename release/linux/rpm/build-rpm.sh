@@ -6,7 +6,7 @@
 
 # Description:
 #
-# Build a rmp go-mssqltools package. This script is intended to be ran in a
+# Build a rpm go-mssqltools package. This script is intended to be ran in a
 # container with the respective distro/image laid down.
 #
 # Usage:
@@ -22,6 +22,6 @@ yum install -y wget rpm-build gcc gcc-c++ \
          make bash coreutils diffutils patch
 
 export LC_ALL=en_US.UTF-8
-export REPO_ROOT_DIR=`cd $(dirname $0); cd ../../; pwd`
+export REPO_ROOT_DIR=`cd $(dirname $0); cd ../../../; pwd`
 
-rpmbuild -v -bb --clean ${REPO_ROOT_DIR}/linux/rpm/go-mssqltools.spec && cp /root/rpmbuild/RPMS/x86_64/* /mnt/output
+rpmbuild -v -bb --clean ${REPO_ROOT_DIR}/release/linux/rpm/go-mssqltools.spec && cp /root/rpmbuild/RPMS/x86_64/* /mnt/output
