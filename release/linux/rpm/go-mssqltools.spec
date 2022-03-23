@@ -35,7 +35,7 @@ MSSQL TOOLS CLI, a multi-platform command line experience for SQL Server and Azu
 
 # Create executable
 mkdir -p %{buildroot}%{_bindir}
-cp /mnt/workspace/SqlcmdLinux/sqlcmd %{buildroot}%{_bindir}
+cp /go-sqlcmd/sqlcmd %{buildroot}%{_bindir}
 
 %files
 %attr(0755,root,root) %{_bindir}/sqlcmd
