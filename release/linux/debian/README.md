@@ -5,7 +5,7 @@
 Execute the following command from the root directory of this repository:
 
 ``` bash
-./release/debian/pipeline.sh
+./release/linux/debian/pipeline.sh
 ```
 
 Output will be sent to `./output/debian`
@@ -13,7 +13,7 @@ Output will be sent to `./output/debian`
 ## Dev Installation and Verification
 
 ``` bash
-./release/debian/pipeline-test.sh
+./release/linux/debian/pipeline-test.sh
 ```
 
 ## Release Install/Update/Uninstall Steps
@@ -22,26 +22,19 @@ Output will be sent to `./output/debian`
 
 ### Install go-mssqltools with apt (Ubuntu or Debian)
 
-1. Get packages needed for the install process:
-
-```bash
-sudo apt-get update
-sudo apt-get install gnupg ca-certificates curl apt-transport-https lsb-release
-```
-
-2. Download and install the signing key:
+1. Download and install the signing key:
 
 ```bash
 sudo curl -sL http://{{HOST}}/browse/repo/ubuntu/dpgswdist.v1.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/dpgswdist.v1.asc.gpg > /dev/null
 ```
 
-3. Add the go-mssqltools repository information:
+2. Add the go-mssqltools repository information:
 
 ```bash
 sudo echo "deb [trusted=yes arch=amd64] http://{{HOST}}/browse/repo/ubuntu/go-mssqltools mssql main" | tee /etc/apt/sources.list.d/go-mssqltools.list
 ```
 
-4. Update repository information and install go-mssqltools:
+3. Update repository information and install go-mssqltools:
 
 ```bash
 sudo apt-get update
@@ -51,7 +44,7 @@ sudo apt-get install go-mssqltools
 5. Verify installation success:
 
 ```bash
-sqlcmd --version
+sqlcmd --help
 ```
 
 ### Update

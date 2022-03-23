@@ -28,9 +28,9 @@ set -exv
 
 : "${REPO_ROOT_DIR:=`cd $(dirname $0); cd ../../../; pwd`}"
 
-CLI_VERSION=0.0.1
-
+CLI_VERSION=${CLI_VERSION:=0.0.1}
 CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1}
+
 BUILD_ARTIFACTSTAGINGDIRECTORY=${BUILD_ARTIFACTSTAGINGDIRECTORY:=${REPO_ROOT_DIR}/output}/rpm
 
 YUM_DISTRO_BASE_IMAGE=( centos:centos7 centos:centos8 fedora:29 fedora:30 fedora:31 )

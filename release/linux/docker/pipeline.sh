@@ -20,7 +20,7 @@
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/docker}
 IMAGE_NAME=microsoft/go-mssqltools${BUILD_BUILDNUMBER:=''}
 
-CLI_VERSION=0.0.1
+CLI_VERSION=${CLI_VERSION:=0.0.1}
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"

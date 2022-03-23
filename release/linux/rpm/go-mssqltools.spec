@@ -12,15 +12,11 @@
 %define repo_path      %{getenv:REPO_ROOT_DIR}
 %define cli_lib_dir    %{_libdir}/go-mssqltools
 
-%global _python_bytecompile_errors_terminate_build 0
 %undefine _missing_build_ids_terminate_build
 %global _missing_build_ids_terminate_build 0
 
-# -- SW --
-%global __python %{__python3}
-
 Summary:        GO MSSQL Tools
-License:        restricted (https://aka.ms/eula-go-mssqltools-en)
+License:        restricted (TODO: https://aka.ms/eula-go-mssqltools-en)
 Name:           %{name}
 Version:        %{version}
 Release:        %{release}

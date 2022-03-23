@@ -24,13 +24,11 @@ set -exv
 DIST_DIR=${BUILD_STAGINGDIRECTORY:=${REPO_ROOT_DIR}/output/rpm}
 DISTRO_BASE_IMAGE=( centos:centos7 fedora:29 )
 
-CLI_VERSION=0.0.1
+CLI_VERSION=${CLI_VERSION:=0.0.1}
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
 echo "CLI_VERSION_REVISION: ${CLI_VERSION_REVISION:=1}"
-echo "CLI_COMMAND_EXCLUSION_LIST: ${CLI_COMMAND_EXCLUSION_LIST}"
-echo "CLI_PRE_INSTALLED_EXTENSION_LIST: ${CLI_PRE_INSTALLED_EXTENSION_LIST}"
 echo "Distribution Image: ${DISTRO_BASE_IMAGE}"
 echo "Output location: ${DIST_DIR}"
 echo "Build: ${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER}"
@@ -51,8 +49,6 @@ for i in ${!DISTRO_BASE_IMAGE[@]}; do
                -v "${PIPELINE_WORKSPACE}":/mnt/workspace \
                -e CLI_VERSION=${CLI_VERSION} \
                -e CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1} \
-               -e CLI_COMMAND_EXCLUSION_LIST=${CLI_COMMAND_EXCLUSION_LIST} \
-               -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
                -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
                "${image}" \
                /mnt/repo/release/linux/rpm/build-rpm.sh

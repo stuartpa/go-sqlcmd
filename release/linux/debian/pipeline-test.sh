@@ -34,7 +34,6 @@ BUILD_ARTIFACTSTAGINGDIRECTORY=${BUILD_ARTIFACTSTAGINGDIRECTORY:=${REPO_ROOT_DIR
 
 DISTROS=( buster stretch jessie bionic xenial focal )
 BASE_IMAGES=( debian:buster debian:stretch debian:jessie ubuntu:bionic ubuntu:xenial ubuntu:focal )
-DISTROS_NEEDING_LIBSSL_DEP_TO_TEST=( buster bionic )
 
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
@@ -51,7 +50,6 @@ for i in ${!DISTROS[@]}; do
     debPkg=go-mssqltools_${CLI_VERSION}-${CLI_VERSION_REVISION}~${DISTROS[$i]}_all.deb
 
     script="apt-get update && \
-            apt-get install -y apt-transport-https unixodbc libkrb5-dev && \
             dpkg -i /mnt/artifacts/${debPkg} && \
             apt-get -f install && \
             sqlcmd --help"

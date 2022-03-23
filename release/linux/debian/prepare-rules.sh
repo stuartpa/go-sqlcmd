@@ -72,7 +72,7 @@ Source: PRIVATE
 
 Files: *
 Copyright: Copyright (c) Microsoft Corporation
-License: https://aka.ms/eula-go-mssqltools-en
+License: TODO: https://aka.ms/eula-go-mssqltools-en
 
 MICROSOFT SOFTWARE LICENSE TERMS
 MICROSOFT GO MSSQL TOOLS CLI

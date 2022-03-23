@@ -18,8 +18,7 @@ set -exv
 : "${CLI_VERSION_REVISION:?CLI_VERSION_REVISION environment variable not set.}"
 
 yum update -y
-yum install -y wget rpm-build gcc gcc-c++ \
-         make bash coreutils diffutils patch
+yum install -y rpm-build
 
 export LC_ALL=en_US.UTF-8
 export REPO_ROOT_DIR=`cd $(dirname $0); cd ../../../; pwd`

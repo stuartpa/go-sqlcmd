@@ -28,7 +28,7 @@
 # Example:
 #
 # export DISTRO=xenial
-# export DISTRO_IMAGE=ubuntu:xenial
+# export DISTRO_BASE_IMAGE=ubuntu:xenial
 #
 # $ pipeline.sh
 
@@ -44,8 +44,6 @@ CLI_VERSION=${CLI_VERSION:=0.0.1}
 echo "=========================================================="
 echo "CLI_VERSION: ${CLI_VERSION}"
 echo "CLI_VERSION_REVISION: ${CLI_VERSION_REVISION:=1}"
-echo "CLI_COMMAND_EXCLUSION_LIST: ${CLI_COMMAND_EXCLUSION_LIST}"
-echo "CLI_PRE_INSTALLED_EXTENSION_LIST: ${CLI_PRE_INSTALLED_EXTENSION_LIST}"
 echo "Distribution: ${DISTRO}"
 echo "Distribution Image: ${DISTRO_BASE_IMAGE}"
 echo "=========================================================="
@@ -60,8 +58,6 @@ docker run --rm \
            -v "${PIPELINE_WORKSPACE}":/mnt/workspace \
            -e CLI_VERSION=${CLI_VERSION} \
            -e CLI_VERSION_REVISION=${CLI_VERSION_REVISION:=1}~${DISTRO} \
-           -e CLI_COMMAND_EXCLUSION_LIST=${CLI_COMMAND_EXCLUSION_LIST} \
-           -e CLI_PRE_INSTALLED_EXTENSION_LIST=${CLI_PRE_INSTALLED_EXTENSION_LIST} \
            -e GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER=${GO_MSSQLTOOLS_PIPELINE_RUN_NUMBER} \
            "${DISTRO_BASE_IMAGE}" \
            /mnt/repo/release/linux/debian/build-pkg.sh
